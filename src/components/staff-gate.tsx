@@ -7,7 +7,7 @@ import { useSession } from "@/lib/auth";
 
 /** Shows its children only to signed-in staff; everyone else goes to /login. */
 export function StaffGate({ children }: { children: React.ReactNode }) {
-  const session = useSession();
+  const session = useSession("staff");
   const router = useRouter();
 
   useEffect(() => {

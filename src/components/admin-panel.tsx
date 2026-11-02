@@ -53,7 +53,7 @@ const matchesStatus = (p: Place, f: StatusFilter) => {
 
 export function AdminPanel() {
   const places = usePlaces();
-  const session = useSession();
+  const session = useSession("staff");
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<StatusFilter>("all");
@@ -204,7 +204,7 @@ export function AdminPanel() {
                 <button
                   type="button"
                   onClick={() => {
-                    signOut();
+                    signOut("staff");
                     router.replace("/login");
                   }}
                   className="ml-1 inline-flex items-center gap-1 rounded-md px-2 py-1 font-semibold text-navy-600 hover:bg-white"

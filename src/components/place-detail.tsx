@@ -11,6 +11,7 @@ import { CompareToggle, DateBlock, TypeTag } from "./position-row";
 import { TYPE_INFO, durationText, placeLocation } from "@/lib/placement";
 import { StatusBadge } from "./status-badge";
 import { BenefitsList, DocumentsChecklist } from "./place-extras";
+import { SaveButton } from "./save-button";
 
 export function PlaceDetail({ id }: { id: string }) {
   const places = usePlaces();
@@ -172,6 +173,9 @@ export function PlaceDetail({ id }: { id: string }) {
           </div>
 
           <aside className="panel h-fit p-5 lg:sticky lg:top-24">
+            <div className="mb-5">
+              <SaveButton placeId={place.id} />
+            </div>
             <h2 className="text-xl font-bold text-navy">How to apply</h2>
             {closed ? (
               <p className="mt-2 text-muted">

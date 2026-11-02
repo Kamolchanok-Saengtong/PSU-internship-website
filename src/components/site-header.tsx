@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Lock, Menu, X } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { Bookmark, Lock, LogIn, LogOut, Menu, X } from "lucide-react";
+import { signOut, useSession } from "@/lib/auth";
 
 const NAV = [
   { href: "/positions", label: "Positions" },
@@ -51,9 +52,12 @@ export function SiteHeader() {
           })}
         </nav>
 
-        <Link href="/admin" className="btn-primary hidden h-10 px-4 text-sm md:inline-flex">
-          <Lock className="size-4" aria-hidden /> Staff
-        </Link>
+        <div className="hidden items-center gap-2 md:flex">
+          <StudentAccount />
+          <Link href="/admin" className="btn-primary h-10 px-4 text-sm">
+            <Lock className="size-4" aria-hidden /> Staff
+          </Link>
+        </div>
 
         <button
           type="button"
@@ -79,11 +83,111 @@ export function SiteHeader() {
               {label}
             </Link>
           ))}
+          <MobileStudentLinks />
           <Link href="/admin" className="btn-primary mt-3 w-full">
             <Lock className="size-4" aria-hidden /> Staff
           </Link>
         </nav>
       )}
     </header>
+  );
+}
+
+/** Student sign-in button, or the signed-in student's menu. */
+function StudentAccount() {
+  const session = useSession("student");
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: PointerEvent) => !ref.current?.contains(e.target as Node) && setOpen(false);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  if (session === undefined) return <span className="h-10 w-24" aria-hidden />;
+  if (!session) {
+    return (
+      <Link href="/signin" className="btn-secondary h-10 px-4 text-sm">
+        <LogIn className="size-4" aria-hidden /> Sign in
+      </Link>
+    );
+  }
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className="flex h-10 items-center gap-2 rounded-full border border-rule bg-white py-1 pr-3 pl-1 text-sm font-medium text-ink hover:border-navy-200"
+      >
+        <span className="grid size-8 place-items-center rounded-full bg-navy text-xs font-bold text-white uppercase">
+          {session.name.slice(0, 1)}
+        </span>
+        <span className="max-w-[8rem] truncate">{session.name}</span>
+      </button>
+      {open && (
+        <div role="menu" className="menu-pop absolute top-full right-0 z-50 mt-2 w-52 rounded-xl border border-rule bg-white p-1.5 shadow-[0_18px_40px_-16px_rgb(15_27_56/0.45)]">
+          <Link
+            href="/me"
+            role="menuitem"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-ink hover:bg-navy-50"
+          >
+            <Bookmark className="size-4 text-muted" aria-hidden /> My places
+          </Link>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false);
+              signOut("student");
+              router.push("/");
+            }}
+            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-ink hover:bg-navy-50"
+          >
+            <LogOut className="size-4 text-muted" aria-hidden /> Sign out
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MobileStudentLinks() {
+  const session = useSession("student");
+  const router = useRouter();
+  if (!session) {
+    return (
+      <Link href="/signin" className="btn-secondary mt-3 w-full">
+        <LogIn className="size-4" aria-hidden /> Student sign-in
+      </Link>
+    );
+  }
+  return (
+    <div className="mt-3 border-t border-rule pt-3">
+      <p className="px-3 text-sm text-muted">Signed in as {session.name}</p>
+      <Link href="/me" className="block rounded-lg px-3 py-3 font-medium text-ink">
+        My places
+      </Link>
+      <button
+        type="button"
+        onClick={() => {
+          signOut("student");
+          router.push("/");
+        }}
+        className="block w-full rounded-lg px-3 py-3 text-left font-medium text-ink"
+      >
+        Sign out
+      </button>
+    </div>
   );
 }

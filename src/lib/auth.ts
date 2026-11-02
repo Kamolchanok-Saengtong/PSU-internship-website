@@ -3,35 +3,40 @@
 import { useSyncExternalStore } from "react";
 
 /**
- * DRAFT staff session. There is no backend yet: any username and password
- * "signs in", and the session lives in this browser tab (sessionStorage).
+ * DRAFT sign-in for staff and students. There is no backend yet: any ID and
+ * password "signs in", and each session lives in this browser.
  *
  * To add real authentication later (e.g. PSU Passport / SSO, NextAuth, Supabase),
- * replace signIn / signInWithPassport / signOut and useSession here. The login
- * page and the staff page only use these four functions.
+ * replace the functions in this file. Pages only use what is exported here.
  */
-export type StaffSession = { name: string; method: "password" | "passport" };
+export type Role = "staff" | "student";
+export type Session = { role: Role; id: string; name: string; method: "password" | "passport" };
+/** Kept for the staff pages. */
+export type StaffSession = Session;
 
-const KEY = "psu-staff-session";
+const KEYS: Record<Role, string> = { staff: "psu-staff-session", student: "psu-student-session" };
 const listeners = new Set<() => void>();
-let cache: StaffSession | null | undefined;
+const cache: Partial<Record<Role, Session | null>> = {};
 
-function read(): StaffSession | null {
-  if (cache !== undefined) return cache;
+/** Staff sessions end with the tab; student sessions stay until they sign out. */
+const storage = (role: Role) => (role === "staff" ? window.sessionStorage : window.localStorage);
+
+function read(role: Role): Session | null {
+  if (role in cache) return cache[role] ?? null;
   try {
-    const raw = window.sessionStorage.getItem(KEY);
-    cache = raw ? (JSON.parse(raw) as StaffSession) : null;
+    const raw = storage(role).getItem(KEYS[role]);
+    cache[role] = raw ? (JSON.parse(raw) as Session) : null;
   } catch {
-    cache = null;
+    cache[role] = null;
   }
-  return cache;
+  return cache[role] ?? null;
 }
 
-function write(next: StaffSession | null) {
-  cache = next;
+function write(role: Role, next: Session | null) {
+  cache[role] = next;
   try {
-    if (next) window.sessionStorage.setItem(KEY, JSON.stringify(next));
-    else window.sessionStorage.removeItem(KEY);
+    if (next) storage(role).setItem(KEYS[role], JSON.stringify(next));
+    else storage(role).removeItem(KEYS[role]);
   } catch {
     // Storage blocked: the session lasts until the page reloads.
   }
@@ -43,28 +48,35 @@ function subscribe(l: () => void) {
   return () => listeners.delete(l);
 }
 
+const pause = (ms: number) => new Promise((r) => setTimeout(r, ms)); // feels like a real request
+
 /** undefined while loading (server render), null when signed out. */
-export function useSession(): StaffSession | null | undefined {
-  return useSyncExternalStore(subscribe, read, () => undefined);
+export function useSession(role: Role = "staff"): Session | null | undefined {
+  return useSyncExternalStore(subscribe, () => read(role), () => undefined);
 }
 
-/** Draft: accepts any non-empty username and password. */
-export async function signIn(username: string, password: string): Promise<StaffSession> {
-  if (!username.trim() || !password) throw new Error("Enter your username and password.");
-  await new Promise((r) => setTimeout(r, 600)); // feels like a real request
-  const session: StaffSession = { name: username.trim(), method: "password" };
-  write(session);
+/** Draft: accepts any non-empty ID and password. */
+export async function signIn(id: string, password: string, role: Role = "staff"): Promise<Session> {
+  if (!id.trim() || !password) {
+    throw new Error(role === "student" ? "Enter your student ID and password." : "Enter your username and password.");
+  }
+  await pause(600);
+  const session: Session = { role, id: id.trim(), name: id.trim(), method: "password" };
+  write(role, session);
   return session;
 }
 
 /** Draft: stands in for the PSU Passport (university single sign-on) redirect. */
-export async function signInWithPassport(): Promise<StaffSession> {
-  await new Promise((r) => setTimeout(r, 700));
-  const session: StaffSession = { name: "PSU staff", method: "passport" };
-  write(session);
+export async function signInWithPassport(role: Role = "staff"): Promise<Session> {
+  await pause(700);
+  const session: Session =
+    role === "student"
+      ? { role, id: "6510110000", name: "PSU student", method: "passport" }
+      : { role, id: "staff", name: "PSU staff", method: "passport" };
+  write(role, session);
   return session;
 }
 
-export function signOut() {
-  write(null);
+export function signOut(role: Role = "staff") {
+  write(role, null);
 }

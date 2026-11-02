@@ -5,13 +5,41 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { ArrowLeft, Eye, EyeOff, Info, Loader2, Lock } from "lucide-react";
-import { signIn, signInWithPassport, useSession } from "@/lib/auth";
+import { signIn, signInWithPassport, useSession, type Role } from "@/lib/auth";
 
-export function LoginForm() {
+const COPY = {
+  staff: {
+    title: "Staff sign-in",
+    intro: "Manage the internship, co-op and part-time places that PSU Phuket Campus students see on the board.",
+    points: ["Add and update places", "Check what is closing soon", "Export the list to a spreadsheet"],
+    who: "For PSU Phuket Campus staff only.",
+    idLabel: "Username",
+    idHint: "e.g. somchai.s",
+    or: "or use your username",
+    home: "/admin",
+    switchText: "Are you a student?",
+    switchLink: { href: "/signin", label: "Student sign-in" },
+  },
+  student: {
+    title: "Student sign-in",
+    intro: "Sign in with your PSU account to keep track of the places you are interested in.",
+    points: ["Save places to look at later", "Track the documents you have ready", "See it all on your own page"],
+    who: "For PSU Phuket Campus students.",
+    idLabel: "Student ID",
+    idHint: "e.g. 6510110123",
+    or: "or use your student ID",
+    home: "/me",
+    switchText: "Are you staff?",
+    switchLink: { href: "/login", label: "Staff sign-in" },
+  },
+} as const;
+
+export function LoginForm({ role = "staff" }: { role?: Role }) {
+  const c = COPY[role];
   const router = useRouter();
   const params = useSearchParams();
-  const next = params.get("next")?.startsWith("/") ? params.get("next")! : "/admin";
-  const session = useSession();
+  const next = params.get("next")?.startsWith("/") ? params.get("next")! : c.home;
+  const session = useSession(role);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -28,12 +56,12 @@ export function LoginForm() {
     e.preventDefault();
     setError("");
     if (!username.trim() || !password) {
-      setError("Enter your username and password.");
+      setError(role === "student" ? "Enter your student ID and password." : "Enter your username and password.");
       return;
     }
     setBusy("password");
     try {
-      await signIn(username, password);
+      await signIn(username, password, role);
       router.replace(next);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign-in failed. Try again.");
@@ -44,7 +72,7 @@ export function LoginForm() {
   async function passport() {
     setError("");
     setBusy("passport");
-    await signInWithPassport();
+    await signInWithPassport(role);
     router.replace(next);
   }
 
@@ -54,13 +82,11 @@ export function LoginForm() {
         <div className="hidden lg:block">
           <Image src="/psu-emblem.svg" alt="" width={84} height={110} className="h-28 w-auto" priority />
           <h1 className="mt-8 text-[clamp(2.2rem,4vw,3rem)] leading-tight font-bold tracking-[-0.02em] text-navy">
-            Staff sign-in
+            {c.title}
           </h1>
-          <p className="mt-3 max-w-md text-lg leading-relaxed text-body">
-            Manage the internship, co-op and part-time places that PSU Phuket Campus students see on the board.
-          </p>
+          <p className="mt-3 max-w-md text-lg leading-relaxed text-body">{c.intro}</p>
           <ul className="mt-8 space-y-3 text-body">
-            {["Add and update places", "Check what is closing soon", "Export the list to a spreadsheet"].map((t) => (
+            {c.points.map((t) => (
               <li key={t} className="flex items-center gap-3">
                 <span className="grid size-7 place-items-center rounded-full bg-navy-50 text-navy">
                   <Lock className="size-3.5" aria-hidden />
@@ -74,10 +100,10 @@ export function LoginForm() {
         <div className="panel-raised w-full p-6 sm:p-8">
           <div className="flex items-center gap-3 lg:hidden">
             <Image src="/psu-emblem.svg" alt="" width={32} height={42} className="h-11 w-auto" />
-            <h1 className="text-2xl font-bold text-navy">Staff sign-in</h1>
+            <h1 className="text-2xl font-bold text-navy">{c.title}</h1>
           </div>
           <h2 className="hidden text-xl font-bold text-navy lg:block">Sign in to continue</h2>
-          <p className="mt-1 text-sm text-muted">For PSU Phuket Campus staff only.</p>
+          <p className="mt-1 text-sm text-muted">{c.who}</p>
 
           <button
             type="button"
@@ -91,20 +117,21 @@ export function LoginForm() {
 
           <div className="my-6 flex items-center gap-3 text-xs font-semibold tracking-wide text-muted uppercase">
             <span className="h-px flex-1 bg-rule" />
-            or use your username
+            {c.or}
             <span className="h-px flex-1 bg-rule" />
           </div>
 
           <form onSubmit={submit} noValidate className="space-y-4">
             <label className="block">
-              <span className="mb-1.5 block text-sm font-semibold text-navy">Username</span>
+              <span className="mb-1.5 block text-sm font-semibold text-navy">{c.idLabel}</span>
               <input
                 className="field"
                 autoComplete="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 aria-invalid={!!error && !username.trim()}
-                placeholder="e.g. somchai.s"
+                placeholder={c.idHint}
+                inputMode={role === "student" ? "numeric" : undefined}
               />
             </label>
             <div>
@@ -148,14 +175,22 @@ export function LoginForm() {
           <p className="mt-6 flex items-start gap-2 rounded-lg border border-gold/60 bg-gold-soft/60 px-3 py-2.5 text-xs leading-relaxed text-gold-ink">
             <Info className="mt-0.5 size-3.5 shrink-0" aria-hidden />
             <span>
-              <strong>Draft:</strong> sign-in is not connected yet, so any username and password will work. Real
-              authentication will be added later.
+              <strong>Draft:</strong> sign-in is not connected yet, so any {role === "student" ? "student ID" : "username"} and password will
+              work. Real authentication will be added later.
             </span>
           </p>
 
-          <Link href="/" className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-navy-600 hover:underline">
-            <ArrowLeft className="size-4" aria-hidden /> Back to the student board
-          </Link>
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-sm">
+            <Link href="/" className="inline-flex items-center gap-1.5 font-semibold text-navy-600 hover:underline">
+              <ArrowLeft className="size-4" aria-hidden /> Back to the board
+            </Link>
+            <span className="text-muted">
+              {c.switchText}{" "}
+              <Link href={c.switchLink.href} className="font-semibold text-navy-600 hover:underline">
+                {c.switchLink.label}
+              </Link>
+            </span>
+          </div>
         </div>
       </div>
     </div>
