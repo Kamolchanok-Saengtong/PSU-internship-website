@@ -4,14 +4,13 @@ import { useLenis } from "lenis/react";
 import { useEffect, useRef, type RefObject } from "react";
 
 /**
- * One scroll gesture = one step, inside a pinned section.
+ * One scroll gesture = one step forward, inside a pinned section. Scrolling back up is free.
  *
  * While the section is pinned, wheel and swipe input is taken over: each gesture
  * glides to the next (or previous) step, and further input is ignored until the
  * glide has finished and the gesture has gone quiet (so trackpad momentum or a
- * hard flick can't skip steps). Scrolling past the first or last step leaves the
- * section normally. Fast scrolls that would fly into the section stop at its first
- * (or, coming from below, last) step.
+ * hard flick can't skip steps). Scrolling past the last step leaves the section
+ * normally, and fast scrolls that would fly into the section stop at its first step.
  *
  * `stepY(i)` returns the page scroll position that shows step i.
  */
@@ -75,6 +74,12 @@ export function useStepSnap({
      */
     const handle = (dir: number, abs: number) => {
       if (!inZone()) return false;
+      // Scrolling back up is always free: only forward movement goes step by step.
+      if (dir < 0) {
+        locked.current = false;
+        lastInput.current = 0;
+        return false;
+      }
       const now = performance.now();
       // Rising input, or steady mouse-wheel notches (about 100 each), is active scrolling.
       const fresh = now - lastInput.current > GAP || abs > lastAbs + 2 || (abs === lastAbs && abs >= 50);
@@ -120,6 +125,7 @@ export function useStepSnap({
       if (touchY === null) return;
       const dy = touchY - (e.touches[0]?.clientY ?? touchY);
       if (!inZone()) return;
+      if (dy < -8) return; // swiping back is free
       if (touchUsed) {
         swallow(e);
         return;
@@ -141,7 +147,6 @@ export function useStepSnap({
       const last = stepYRef.current(steps - 1);
       if (!gliding()) {
         if (!inside.current && prevY.current < first - 4 && y > first + 4) goTo(0);
-        else if (!inside.current && prevY.current > last + 4 && y < last - 4) goTo(steps - 1);
         else if (y < first - 40 || y > last + 40) inside.current = false;
       }
       prevY.current = y;
