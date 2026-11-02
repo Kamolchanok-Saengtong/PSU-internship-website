@@ -250,7 +250,7 @@ function SceneApply({ place }: { place: Place }) {
         </motion.div>
       </dl>
       <div className="mt-3 flex flex-wrap gap-2">
-        {["CV.pdf", "Transcript.pdf", "Co-op form.pdf"].map((f, i) => (
+        {(place.documents?.length ? place.documents : ["CV", "Transcript"]).slice(0, 4).map((f, i) => (
           <motion.span key={f} {...rise(i + 2)} className="inline-flex items-center gap-1 rounded-md bg-navy-50 px-2 py-1 text-xs font-medium text-navy">
             <Paperclip className="size-3" aria-hidden /> {f}
           </motion.span>

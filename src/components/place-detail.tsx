@@ -10,6 +10,7 @@ import { googleCalendarUrl, icsContent } from "@/lib/calendar";
 import { CompareToggle, DateBlock, TypeTag } from "./position-row";
 import { TYPE_INFO, durationText, placeLocation } from "@/lib/placement";
 import { StatusBadge } from "./status-badge";
+import { BenefitsList, DocumentsChecklist } from "./place-extras";
 
 export function PlaceDetail({ id }: { id: string }) {
   const places = usePlaces();
@@ -144,6 +145,8 @@ export function PlaceDetail({ id }: { id: string }) {
                 ))}
               </ul>
             </section>
+            <BenefitsList benefits={place.benefits ?? []} />
+            <DocumentsChecklist placeId={place.id} documents={place.documents ?? []} />
             <section>
               <h2 className="text-xl font-bold text-navy">Open to students from</h2>
               <ul className="mt-3 grid gap-3 sm:grid-cols-2">

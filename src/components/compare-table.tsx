@@ -99,6 +99,26 @@ const rows: Row[] = [
     ),
   },
   {
+    label: "Benefits",
+    render: (p) => (
+      <ul className="list-disc space-y-1 pl-4 text-body marker:text-navy-200">
+        {(p.benefits ?? []).map((b) => (
+          <li key={b}>{b}</li>
+        ))}
+      </ul>
+    ),
+  },
+  {
+    label: "Documents",
+    render: (p) => (
+      <ul className="list-disc space-y-1 pl-4 text-body marker:text-navy-200">
+        {(p.documents ?? []).map((d) => (
+          <li key={d}>{d}</li>
+        ))}
+      </ul>
+    ),
+  },
+  {
     label: "How to apply",
     render: (p) => <span className="text-body">{p.howToApply}</span>,
   },

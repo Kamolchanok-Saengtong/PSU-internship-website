@@ -52,6 +52,10 @@ export type Place = {
   summary: string;
   duties: string[];
   requirements: string[];
+  /** What the student gets besides pay, e.g. meals, accommodation, a certificate. */
+  benefits: string[];
+  /** Documents to send when applying, e.g. CV, transcript, co-op letter. */
+  documents: string[];
   howToApply: string;
   contactName: string;
   contactEmail: string;

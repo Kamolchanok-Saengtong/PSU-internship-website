@@ -9,8 +9,8 @@ import type { Place } from "./types";
  * sample data. Swap these functions for API calls once a database and staff
  * login exist; the components only use usePlaces / savePlace / deletePlace.
  */
-// v2 added placement types and provinces; older saved lists are ignored.
-const KEY = "psu-phuket-internships:v2";
+// v3 added benefits and documents; older saved lists are ignored.
+const KEY = "psu-phuket-internships:v3";
 const listeners = new Set<() => void>();
 let cache: Place[] | null = null;
 

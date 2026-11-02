@@ -31,6 +31,8 @@ const EMPTY: Place = {
   summary: "",
   duties: [],
   requirements: [],
+  benefits: [],
+  documents: ["CV", "Transcript"],
   howToApply: "",
   contactName: "",
   contactEmail: "",
@@ -62,6 +64,8 @@ export function PlaceForm({
   const [p, setP] = useState<Place>(initial ?? EMPTY);
   const [duties, setDuties] = useState((initial?.duties ?? []).join("\n"));
   const [reqs, setReqs] = useState((initial?.requirements ?? []).join("\n"));
+  const [benefits, setBenefits] = useState((initial?.benefits ?? []).join("\n"));
+  const [docs, setDocs] = useState((initial?.documents ?? EMPTY.documents).join("\n"));
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const set = <K extends keyof Place>(key: K, value: Place[K]) => setP((prev) => ({ ...prev, [key]: value }));
@@ -93,7 +97,7 @@ export function PlaceForm({
       for (let n = 2; existingIds.includes(id); n++) id = `${base}-${n}`;
     }
     const lines = (s: string) => s.split("\n").map((l) => l.trim()).filter(Boolean);
-    onSave({ ...p, id, duties: lines(duties), requirements: lines(reqs) });
+    onSave({ ...p, id, duties: lines(duties), requirements: lines(reqs), benefits: lines(benefits), documents: lines(docs) });
   }
 
   return (
@@ -236,6 +240,12 @@ export function PlaceForm({
         </Field>
         <Field label="Who can apply" hint="One item per line">
           {(props) => <textarea {...props} rows={4} className={area} value={reqs} onChange={(e) => setReqs(e.target.value)} />}
+        </Field>
+        <Field label="Benefits" hint="One item per line, e.g. Meals provided">
+          {(props) => <textarea {...props} rows={4} className={area} value={benefits} onChange={(e) => setBenefits(e.target.value)} />}
+        </Field>
+        <Field label="Documents to send" hint="One item per line, e.g. CV">
+          {(props) => <textarea {...props} rows={4} className={area} value={docs} onChange={(e) => setDocs(e.target.value)} />}
         </Field>
         <div className="sm:col-span-2">
           <Field label="How to apply">
