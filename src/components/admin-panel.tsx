@@ -15,6 +15,7 @@ import {
   ExternalLink,
   Info,
   LayoutList,
+  LogOut,
   MoreHorizontal,
   Pencil,
   Plus,
@@ -24,6 +25,8 @@ import {
   X,
 } from "lucide-react";
 import { deletePlaces, resetToSample, restorePlaces, savePlace, usePlaces } from "@/lib/store";
+import { signOut, useSession } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 import { allowanceText, countdown, daysLeft, shortDate, statusOf } from "@/lib/status";
 import { TYPE_INFO, monthlyPay, placeLocation } from "@/lib/placement";
 import { PLACEMENT_TYPES, PROVINCES, type Place } from "@/lib/types";
@@ -50,6 +53,8 @@ const matchesStatus = (p: Place, f: StatusFilter) => {
 
 export function AdminPanel() {
   const places = usePlaces();
+  const session = useSession();
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<StatusFilter>("all");
   const [type, setType] = useState("all");
@@ -190,6 +195,24 @@ export function AdminPanel() {
               Manage places
             </h1>
             <p className="mt-1 text-body">Add, update and remove the places students see on the board.</p>
+            {session && (
+              <p className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted">
+                <span className="grid size-7 place-items-center rounded-full bg-navy text-xs font-bold text-white uppercase">
+                  {session.name.slice(0, 1)}
+                </span>
+                Signed in as <span className="font-semibold text-ink">{session.name}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    signOut();
+                    router.replace("/login");
+                  }}
+                  className="ml-1 inline-flex items-center gap-1 rounded-md px-2 py-1 font-semibold text-navy-600 hover:bg-white"
+                >
+                  <LogOut className="size-3.5" aria-hidden /> Sign out
+                </button>
+              </p>
+            )}
           </div>
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={exportCsv} className="btn-secondary h-11 text-sm" disabled={!rows.length}>
