@@ -177,6 +177,30 @@ a {
   transform: translateY(1px);
 }
 
+.btn-danger {
+  display: inline-flex;
+  height: 2.9rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 10px;
+  background: var(--color-danger);
+  padding-inline: 1.25rem;
+  color: #fff;
+  font-weight: 600;
+  transition: background-color 150ms;
+}
+
+.btn-danger:hover {
+  background: #912018;
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .btn-secondary {
   display: inline-flex;
   height: 2.9rem;
@@ -522,4 +546,48 @@ select {
   background: var(--color-gold);
   color: var(--color-navy-950);
   transform: scale(1.3);
+}
+
+/* Staff: side panel, pop-up messages and row menu */
+.drawer-backdrop {
+  animation: fade-in 200ms ease-out both;
+}
+
+.drawer-panel {
+  animation: drawer-in 320ms var(--ease-out-expo) both;
+}
+
+@keyframes drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.toast {
+  animation: toast-in 350ms var(--ease-out-expo) both;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+
+.menu-pop {
+  transform-origin: top right;
+  animation: menu-in 160ms var(--ease-out-expo) both;
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-4px);
+  }
 }

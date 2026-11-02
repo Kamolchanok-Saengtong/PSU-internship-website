@@ -65,6 +65,18 @@ export function deletePlace(id: string) {
   write(read().filter((p) => p.id !== id));
 }
 
+/** Remove several places at once. Returns the list as it was before, for undo. */
+export function deletePlaces(ids: string[]): Place[] {
+  const before = read();
+  write(before.filter((p) => !ids.includes(p.id)));
+  return before;
+}
+
+/** Put back a whole list, e.g. to undo a delete. */
+export function restorePlaces(list: Place[]) {
+  write(list);
+}
+
 export function resetToSample() {
   write(SAMPLE_PLACES);
 }
