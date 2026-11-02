@@ -4,9 +4,10 @@ import Link from "next/link";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { usePlaces } from "@/lib/store";
 import { useCompareIds, clearCompare } from "@/lib/compare-store";
-import { statusOf, allowanceText, longDate, countdown } from "@/lib/status";
+import { statusOf, longDate, countdown } from "@/lib/status";
 import { FACULTY_INFO } from "@/lib/faculties";
 import { StatusBadge } from "./status-badge";
+import { PayTag } from "./pay-tag";
 import type { Place } from "@/lib/types";
 import { durationText, monthlyPay, placeLocation } from "@/lib/placement";
 
@@ -68,8 +69,8 @@ const rows: Row[] = [
       const best = highestAllowance(all);
       const isBest = p.allowance > 0 && monthlyPay(p) === best && all.length > 1;
       return (
-        <span className={isBest ? "font-bold text-success" : "text-ink"}>
-          {allowanceText(p.allowance, p.payPer)}
+        <span className="flex flex-wrap items-center gap-1.5">
+          <PayTag place={p} size="sm" />
           {isBest && <span className="ml-1.5 rounded-full bg-[#e3f4ec] px-2 py-0.5 text-xs font-semibold text-success">Highest</span>}
         </span>
       );

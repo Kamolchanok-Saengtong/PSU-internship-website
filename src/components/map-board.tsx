@@ -7,13 +7,14 @@ import { ArrowRight, Globe2, List, Map as MapIcon, MapPin, Wifi, X } from "lucid
 import { FACULTY_INFO } from "@/lib/faculties";
 import { CAMPUS, VIEWS, distanceKm, placeCoords } from "@/lib/geo";
 import { TYPE_INFO, placeLocation } from "@/lib/placement";
-import { allowanceText, countdown, statusOf } from "@/lib/status";
+import { countdown, statusOf } from "@/lib/status";
 import { usePlaces } from "@/lib/store";
 import { FACULTIES, PLACEMENT_TYPES, type Faculty, type Place, type PlacementType } from "@/lib/types";
 import type { Bounds, MapPoint, ViewRequest } from "./explorer-map";
 import { TypeTag } from "./position-row";
 import { SaveButton } from "./save-button";
 import { StatusBadge } from "./status-badge";
+import { PayTag } from "./pay-tag";
 
 const ExplorerMap = dynamic(() => import("./explorer-map").then((m) => m.ExplorerMap), {
   ssr: false,
@@ -338,7 +339,7 @@ function ListCard({
           <StatusBadge status={status} />
           {status !== "closed" && <span className="text-muted">{countdown(p.closes)}</span>}
         </span>
-        <span className="tabular text-sm font-semibold text-ink">{allowanceText(p.allowance, p.payPer)}</span>
+        <PayTag place={p} size="sm" showHours={false} />
       </div>
     </article>
   );
@@ -368,7 +369,9 @@ function MapCard({ item: { place: p, km }, onClose }: { item: Item; onClose: () 
       <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
         <div>
           <dt className="text-xs text-muted">Pay</dt>
-          <dd className="tabular font-semibold text-ink">{allowanceText(p.allowance, p.payPer)}</dd>
+          <dd className="mt-0.5">
+            <PayTag place={p} size="sm" />
+          </dd>
         </div>
         <div>
           <dt className="text-xs text-muted">Deadline</dt>

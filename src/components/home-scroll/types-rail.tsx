@@ -5,9 +5,10 @@ import { motion, useReducedMotion, useScroll, useTransform } from "motion/react"
 import { useLayoutEffect, useRef, useState } from "react";
 import { ArrowRight, BriefcaseBusiness, Clock3, GraduationCap, MapPin } from "lucide-react";
 import { TYPE_INFO, placeLocation } from "@/lib/placement";
-import { allowanceText, countdown, statusOf } from "@/lib/status";
+import { countdown, statusOf } from "@/lib/status";
 import { PLACEMENT_TYPES, type Place, type PlacementType } from "@/lib/types";
 import { useWide } from "./motion-bits";
+import { PayTag } from "../pay-tag";
 
 const ICONS = [Clock3, BriefcaseBusiness, GraduationCap];
 
@@ -135,7 +136,7 @@ function TypePanel({ type, index, places }: { type: PlacementType; index: number
                 </span>
               </span>
               <span className={`tabular shrink-0 text-sm font-semibold ${dark ? "text-white" : "text-ink"}`}>
-                {allowanceText(p.allowance, p.payPer)}
+                <PayTag place={p} size="sm" showHours={false} />
               </span>
             </Link>
           </li>

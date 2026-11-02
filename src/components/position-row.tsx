@@ -4,11 +4,12 @@ import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { toggleCompare, useCompareIds } from "@/lib/compare-store";
 import { FACULTY_INFO } from "@/lib/faculties";
-import { allowanceText, countdown, type Status } from "@/lib/status";
+import { countdown, type Status } from "@/lib/status";
 import { TYPE_INFO, placeLocation } from "@/lib/placement";
 import type { Place } from "@/lib/types";
 import { SaveButton } from "./save-button";
 import { StatusBadge } from "./status-badge";
+import { PayTag } from "./pay-tag";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -107,13 +108,10 @@ export function PositionRow({ place: p, status, compact = false }: { place: Plac
       </div>
 
       <div className="flex w-full shrink-0 flex-wrap items-center gap-x-3 gap-y-2 border-t border-rule pt-3 sm:w-auto sm:flex-col sm:items-end sm:justify-between sm:border-0 sm:pt-0 sm:text-right">
+        <PayTag place={p} className="sm:items-end" />
         <span className="flex items-center gap-1">
           <StatusBadge status={status} />
           <SaveButton placeId={p.id} compact />
-        </span>
-        <span className="tabular text-[0.95rem] font-semibold text-ink">
-          {allowanceText(p.allowance, p.payPer)}
-          {p.hoursPerWeek ? <span className="block text-xs font-normal text-muted">{p.hoursPerWeek} hrs/week</span> : null}
         </span>
         {!compact && !closed && (
           <span className="ml-auto sm:ml-0">

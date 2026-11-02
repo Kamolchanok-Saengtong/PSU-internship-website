@@ -10,6 +10,7 @@ import { googleCalendarUrl, icsContent } from "@/lib/calendar";
 import { CompareToggle, DateBlock, TypeTag } from "./position-row";
 import { TYPE_INFO, durationText, placeLocation } from "@/lib/placement";
 import { StatusBadge } from "./status-badge";
+import { PayTag } from "./pay-tag";
 import { BenefitsList, DocumentsChecklist } from "./place-extras";
 import { SaveButton } from "./save-button";
 import { ApplyButton } from "./apply-button";
@@ -78,9 +79,9 @@ export function PlaceDetail({ id }: { id: string }) {
             <ChevronRight className="size-4" aria-hidden />
             <span className="truncate text-ink">{place.role}</span>
           </nav>
-          <div className="mt-6 flex items-start gap-5">
+          <div className="mt-6 flex flex-wrap items-start gap-5">
             <DateBlock iso={place.closes} status={status} />
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <TypeTag type={place.placementType} />
                 <StatusBadge status={status} />
@@ -91,6 +92,7 @@ export function PlaceDetail({ id }: { id: string }) {
               </h1>
               <p className="mt-1 text-lg text-body">{place.company}</p>
             </div>
+            <PayTag place={place} size="lg" className="w-full sm:w-auto" />
           </div>
         </div>
       </header>
