@@ -142,7 +142,7 @@ function StudentAccount() {
             onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-ink hover:bg-navy-50"
           >
-            <Bookmark className="size-4 text-muted" aria-hidden /> My places
+            <Bookmark className="size-4 text-muted" aria-hidden /> My page
           </Link>
           <button
             type="button"
@@ -176,7 +176,7 @@ function MobileStudentLinks() {
     <div className="mt-3 border-t border-rule pt-3">
       <p className="px-3 text-sm text-muted">Signed in as {session.name}</p>
       <Link href="/me" className="block rounded-lg px-3 py-3 font-medium text-ink">
-        My places
+        My page
       </Link>
       <button
         type="button"

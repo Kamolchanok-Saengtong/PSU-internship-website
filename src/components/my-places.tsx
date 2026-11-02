@@ -9,13 +9,16 @@ import { readDocProgress, useSaved } from "@/lib/saved";
 import { statusOf } from "@/lib/status";
 import { usePlaces } from "@/lib/store";
 import { PositionRow } from "./position-row";
+import { ApplicationPanel } from "./application-panel";
+import { sampleApplication, usePreviewStatus } from "@/lib/application";
 
-/** A signed-in student's page: saved places and how ready their documents are. */
+/** A signed-in student's page: their co-op application status, and saved places. */
 export function MyPlaces() {
   const session = useSession("student");
   const router = useRouter();
   const places = usePlaces();
   const saved = useSaved(session?.id);
+  const previewStatus = usePreviewStatus();
   const [progress, setProgress] = useState<Record<string, number>>({});
   const leaving = useRef(false);
 
@@ -44,6 +47,7 @@ export function MyPlaces() {
 
   const list = saved.map((id) => places.find((p) => p.id === id)).filter((p) => p !== undefined);
   const open = list.filter((p) => statusOf(p) !== "closed");
+  const app = sampleApplication(previewStatus);
   const docsReady = list.filter((p) => (p.documents ?? []).length > 0 && (progress[p.id] ?? 0) >= p.documents.length).length;
 
   return (
@@ -56,12 +60,22 @@ export function MyPlaces() {
             </span>
             <div>
               <h1 className="text-[clamp(1.8rem,4vw,2.4rem)] leading-tight font-bold tracking-[-0.02em] text-navy">
-                My places
+                {session.name !== session.id ? session.name : "My page"}
               </h1>
-              <p className="text-body">
-                {session.name}
-                {session.method === "passport" && <span className="text-muted"> · {session.id}</span>}
-              </p>
+              <dl className="mt-1 flex flex-wrap gap-x-5 gap-y-1 text-sm">
+                <div className="flex gap-1.5">
+                  <dt className="text-muted">ID</dt>
+                  <dd className="tabular font-medium text-ink">{session.id}</dd>
+                </div>
+                <div className="flex gap-1.5">
+                  <dt className="text-muted">Faculty</dt>
+                  <dd className="font-medium text-ink">{app.faculty}</dd>
+                </div>
+                <div className="flex gap-1.5">
+                  <dt className="text-muted">Major</dt>
+                  <dd className="font-medium text-ink">{app.major}</dd>
+                </div>
+              </dl>
             </div>
           </div>
           <button
@@ -79,6 +93,9 @@ export function MyPlaces() {
       </section>
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <ApplicationPanel app={app} place={places.find((p) => p.id === app.placeId)} />
+
+        <h2 className="mt-14 mb-4 text-2xl font-bold text-navy">Saved places</h2>
         <ul className="grid gap-3 sm:grid-cols-3">
           {[
             { icon: Bookmark, value: list.length, label: "Saved places" },
@@ -98,9 +115,9 @@ export function MyPlaces() {
         </ul>
 
         <section aria-labelledby="saved-title" className="mt-10">
-          <h2 id="saved-title" className="text-xl font-bold text-navy">
-            Saved places
-          </h2>
+          <h3 id="saved-title" className="sr-only">
+            Saved places list
+          </h3>
           {list.length === 0 ? (
             <div className="panel mt-4 px-6 py-14 text-center">
               <Bookmark className="mx-auto size-8 text-navy-200" aria-hidden />
@@ -142,8 +159,8 @@ export function MyPlaces() {
         </section>
 
         <p className="mt-8 text-sm text-muted">
-          Draft: your saved places are kept in this browser for now. They will move to your PSU account when sign-in is
-          connected.
+          Draft: the application above is sample data, and saved places are kept in this browser. Both will come from
+          your PSU account when sign-in and the co-op system are connected.
         </p>
       </div>
     </>
