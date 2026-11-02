@@ -85,18 +85,18 @@ export function MapFlight({ places }: { places: Place[] }) {
       style={{ height: pinned ? `${100 + stops.length * (wide ? 24 : 20)}vh` : undefined }}
     >
       <div
-        className={`${pinned ? "sticky top-[4.5rem] h-[calc(100vh-4.5rem)]" : ""} mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[22rem_1fr] lg:items-center lg:gap-10`}
+        className={`${pinned ? "sticky top-[4.5rem] h-[calc(100svh-4.5rem)] overflow-hidden" : ""} mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 lg:grid lg:grid-cols-[22rem_1fr] lg:items-center lg:gap-10 lg:py-6`}
       >
-        <div className="order-2 lg:order-1">
-          <h2 id="flight-title" className="text-[clamp(1.7rem,3.2vw,2.4rem)] leading-tight font-bold tracking-[-0.02em] text-navy">
+        <div className="order-2 shrink-0 lg:order-1">
+          <h2 id="flight-title" className="text-[clamp(1.45rem,3.2vw,2.4rem)] leading-tight font-bold tracking-[-0.02em] text-navy">
             From Phuket to all of Thailand
           </h2>
-          <p className="mt-2 text-body">
+          <p className="mt-1 text-sm text-body sm:mt-2 sm:text-base">
             Places in {stops.length} provinces. Scroll to follow the route from campus.
           </p>
 
           {stop && (
-            <div className="relative mt-6 min-h-[15rem]">
+            <div className="relative mt-3 sm:mt-6 lg:min-h-[15rem]">
               <AnimatePresence mode="wait" initial={false}>
                 <motion.div
                   key={stop.province}
@@ -118,8 +118,8 @@ export function MapFlight({ places }: { places: Place[] }) {
                     {stop.places.length} open {stop.places.length === 1 ? "place" : "places"}
                   </p>
                   <ul className="mt-3 divide-y divide-rule">
-                    {stop.places.slice(0, 2).map((p) => (
-                      <li key={p.id} className="py-2.5">
+                    {stop.places.slice(0, 2).map((p, i) => (
+                      <li key={p.id} className={`py-2.5 ${i > 0 ? "hidden sm:block" : ""}`}>
                         <Link href={`/places/${p.id}`} className="font-semibold text-navy hover:underline">
                           {p.role}
                         </Link>
@@ -255,7 +255,7 @@ function FlightMap({
       ref={hostRef}
       role="img"
       aria-label="Map of Thailand with a route from PSU Phuket Campus to each province with open places"
-      className="order-1 h-[46vh] w-full overflow-hidden rounded-2xl border border-rule bg-[#aad3df] lg:order-2 lg:h-[min(40rem,calc(100vh-8rem))]"
+      className="order-1 min-h-[9rem] w-full flex-1 overflow-hidden rounded-2xl border border-rule bg-[#aad3df] lg:order-2 lg:h-[min(40rem,calc(100vh-8rem))] lg:flex-none"
     />
   );
 }
