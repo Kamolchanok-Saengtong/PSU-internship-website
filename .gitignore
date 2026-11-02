@@ -42,3 +42,7 @@ next-env.d.ts
 
 # design tool files
 /.impeccable/
+
+# local dev database (src/server/db.ts)
+/.data/
+!.env.example

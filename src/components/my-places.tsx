@@ -14,7 +14,8 @@ import {
   X,
 } from "lucide-react";
 import { signOut, useSession } from "@/lib/auth";
-import { readDocProgress, useSaved } from "@/lib/saved";
+import { readDocProgress, useMe } from "@/lib/saved";
+import { AccountEmail, ReminderControl } from "./reminder-control";
 import { statusOf } from "@/lib/status";
 import { usePlaces } from "@/lib/store";
 import { PositionRow } from "./position-row";
@@ -26,12 +27,15 @@ import {
 } from "./application-panel";
 import { useMyApplication } from "@/lib/application";
 
+const EMPTY: string[] = [];
+
 /** A signed-in student's page: their co-op application status, and saved places. */
 export function MyPlaces() {
   const session = useSession("student");
   const router = useRouter();
   const places = usePlaces();
-  const saved = useSaved(session?.id);
+  const { me, error: meError } = useMe(session?.id);
+  const saved = me?.saved ?? EMPTY;
   const app = useMyApplication(session?.id);
   const [justSent, setJustSent] = useState(false);
 
@@ -232,6 +236,15 @@ export function MyPlaces() {
           <h3 id="saved-title" className="sr-only">
             Saved places list
           </h3>
+          {me && list.length > 0 && <AccountEmail email={me.accountEmail} />}
+          {meError && (
+            <p
+              role="alert"
+              className="mt-4 rounded-xl border border-danger/30 bg-[#fdf1f0] px-4 py-3 text-sm text-danger"
+            >
+              Couldn&apos;t load your saved places: {meError}
+            </p>
+          )}
           {list.length === 0 ? (
             <div className="panel mt-4 px-6 py-14 text-center">
               <Bookmark className="mx-auto size-8 text-navy-200" aria-hidden />
@@ -255,37 +268,46 @@ export function MyPlaces() {
                     <ul>
                       <PositionRow place={p} status={statusOf(p)} compact />
                     </ul>
-                    {total > 0 && (
-                      <Link
-                        href={`/places/${p.id}`}
-                        className="mx-4 -mt-1 flex items-center gap-3 rounded-b-xl border border-t-0 border-rule bg-white px-4 py-2.5 text-sm hover:bg-navy-50"
-                      >
-                        <FileCheck2
-                          className={`size-4 ${done === total ? "text-success" : "text-muted"}`}
-                          aria-hidden
-                        />
-                        <span
-                          className={
-                            done === total
-                              ? "font-semibold text-success"
-                              : "text-body"
-                          }
+                    <div className="mx-4 -mt-1 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-b-xl border border-t-0 border-rule bg-white px-4 py-2.5">
+                      <ReminderControl
+                        key={JSON.stringify(me?.reminders[p.id] ?? null)}
+                        placeId={p.id}
+                        reminder={me?.reminders[p.id]}
+                        accountEmail={me?.accountEmail ?? ""}
+                        closed={statusOf(p) === "closed"}
+                      />
+                      {total > 0 && (
+                        <Link
+                          href={`/places/${p.id}`}
+                          className="ml-auto flex min-w-[12rem] items-center gap-3 rounded-lg px-2 py-1.5 text-sm hover:bg-navy-50"
                         >
-                          {done === total
-                            ? "All documents ready"
-                            : `${done} of ${total} documents ready`}
-                        </span>
-                        <span
-                          className="h-1.5 flex-1 overflow-hidden rounded-full bg-navy-100"
-                          aria-hidden
-                        >
-                          <span
-                            className="block h-full rounded-full bg-success"
-                            style={{ width: `${(done / total) * 100}%` }}
+                          <FileCheck2
+                            className={`size-4 ${done === total ? "text-success" : "text-muted"}`}
+                            aria-hidden
                           />
-                        </span>
-                      </Link>
-                    )}
+                          <span
+                            className={
+                              done === total
+                                ? "font-semibold text-success"
+                                : "text-body"
+                            }
+                          >
+                            {done === total
+                              ? "All documents ready"
+                              : `${done} of ${total} documents ready`}
+                          </span>
+                          <span
+                            className="h-1.5 w-16 overflow-hidden rounded-full bg-navy-100"
+                            aria-hidden
+                          >
+                            <span
+                              className="block h-full rounded-full bg-success"
+                              style={{ width: `${(done / total) * 100}%` }}
+                            />
+                          </span>
+                        </Link>
+                      )}
+                    </div>
                   </li>
                 );
               })}
@@ -294,8 +316,8 @@ export function MyPlaces() {
         </section>
 
         <p className="mt-8 text-sm text-muted">
-          Draft: your request and saved places are kept in this browser. They
-          will come from your PSU account when sign-in and the co-op system are
+          Draft: saved places and reminders are stored on the server; your co-op
+          request is still kept in this browser until the co-op system is
           connected.
         </p>
       </div>

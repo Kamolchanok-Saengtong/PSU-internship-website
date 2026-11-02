@@ -77,6 +77,11 @@ export async function signInWithPassport(role: Role = "staff"): Promise<Session>
   return session;
 }
 
+/** The current session outside React (e.g. for API calls). */
+export function getSession(role: Role): Session | null {
+  return read(role);
+}
+
 export function signOut(role: Role = "staff") {
   write(role, null);
 }
