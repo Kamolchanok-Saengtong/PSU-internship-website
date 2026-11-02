@@ -16,6 +16,7 @@ import {
 import { signOut, useSession } from "@/lib/auth";
 import { readDocProgress, useMe } from "@/lib/saved";
 import { AccountEmail, ReminderControl } from "./reminder-control";
+import { ResourcesStrip } from "./resources-strip";
 import { statusOf } from "@/lib/status";
 import { usePlaces } from "@/lib/store";
 import { PositionRow } from "./position-row";
@@ -204,6 +205,15 @@ export function MyPlaces() {
           </div>
         )}
         {!app && <StatusGuide />}
+
+        <div className="mt-5">
+          <ResourcesStrip
+            title="Read first"
+            intro="Guides and forms to check before you send or change a co-op request."
+            pinnedOnly
+            limit={4}
+          />
+        </div>
 
         <h2 className="mt-14 mb-4 text-2xl font-bold text-navy">
           Saved places

@@ -17,6 +17,7 @@ import { Reveal } from "./home-scroll/motion-bits";
 import { StatsBand } from "./home-scroll/stats-band";
 import { TypesRail } from "./home-scroll/types-rail";
 import { PositionRow } from "./position-row";
+import { ResourcesStrip } from "./resources-strip";
 
 const delay = (ms: number) => ({ "--delay": `${ms}ms` }) as React.CSSProperties;
 
@@ -102,6 +103,11 @@ export function Home() {
       </div>
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        {/* ---------- News & documents ---------- */}
+        <Reveal className="pt-16">
+          <ResourcesStrip title="News & documents" intro="Announcements, forms and guides from your faculty." />
+        </Reveal>
+
         {/* ---------- Closing soon ---------- */}
         <Reveal as="section" className="pt-20">
           <div className="flex flex-wrap items-end justify-between gap-3">

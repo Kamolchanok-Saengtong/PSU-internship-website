@@ -30,6 +30,11 @@ export function SiteFooter() {
                 Compare places
               </Link>
             </li>
+            <li>
+              <Link href="/resources" className="hover:text-white hover:underline">
+                News &amp; documents
+              </Link>
+            </li>
           </ul>
         </div>
         <div>

@@ -11,6 +11,7 @@ const NAV = [
   { href: "/positions", label: "Positions" },
   { href: "/map", label: "Map" },
   { href: "/compare", label: "Compare" },
+  { href: "/resources", label: "News & docs" },
 ];
 
 export function SiteHeader() {

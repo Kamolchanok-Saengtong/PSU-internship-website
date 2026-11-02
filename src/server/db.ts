@@ -1,6 +1,8 @@
 import { promises as fs } from "fs";
 import path from "path";
 import type { Reminder } from "@/lib/reminders";
+import type { Resource } from "@/lib/resources";
+import { SEED_RESOURCES } from "./seed-resources";
 
 /**
  * Server data store.
@@ -18,7 +20,7 @@ export type StudentRecord = {
 
 export type OutboxEmail = { id: string; to: string; subject: string; text: string; html: string; at: string; via: string };
 
-type DB = { students: Record<string, StudentRecord>; outbox: OutboxEmail[] };
+type DB = { students: Record<string, StudentRecord>; outbox: OutboxEmail[]; resources?: Resource[] };
 
 const FILE = path.join(process.cwd(), ".data", "db.json");
 let queue: Promise<unknown> = Promise.resolve();
@@ -69,6 +71,23 @@ export function updateStudent(id: string, change: (s: StudentRecord) => void): P
 export async function studentsWithReminders(): Promise<[string, StudentRecord][]> {
   const db = await load();
   return Object.entries(db.students).filter(([, s]) => Object.values(s.reminders).some((r) => r.enabled));
+}
+
+/* ---------- News & documents ---------- */
+
+export const UPLOAD_DIR = path.join(process.cwd(), ".data", "uploads");
+
+export async function listResources(): Promise<Resource[]> {
+  const db = await load();
+  return db.resources ?? SEED_RESOURCES;
+}
+
+/** Change the list of resources (seeded with the starting items the first time). */
+export function updateResources<T>(change: (list: Resource[]) => T): Promise<T> {
+  return transaction((db) => {
+    db.resources ??= structuredClone(SEED_RESOURCES);
+    return change(db.resources);
+  });
 }
 
 export function addToOutbox(email: OutboxEmail) {

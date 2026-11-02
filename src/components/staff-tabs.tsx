@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Inbox, LayoutList } from "lucide-react";
+import { Inbox, LayoutList, Newspaper } from "lucide-react";
 import { useApplications } from "@/lib/application";
 import { AdminPanel } from "./admin-panel";
 import { CoopRequests } from "./coop-requests";
+import { StaffResources } from "./staff-resources";
 
-type Tab = "places" | "requests";
+type Tab = "places" | "requests" | "news";
 
 /** Staff home: manage places, or review co-op requests. The tab is kept in the URL. */
 export function StaffTabs() {
@@ -14,12 +15,13 @@ export function StaffTabs() {
   const waiting = useApplications().filter((a) => a.status === "approving").length;
 
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("tab") === "requests") setTab("requests");
+    const t = new URLSearchParams(window.location.search).get("tab");
+    if (t === "requests" || t === "news") setTab(t);
   }, []);
 
   const go = (t: Tab) => {
     setTab(t);
-    window.history.replaceState(null, "", t === "requests" ? "/admin?tab=requests" : "/admin");
+    window.history.replaceState(null, "", t === "places" ? "/admin" : `/admin?tab=${t}`);
   };
 
   return (
@@ -30,6 +32,7 @@ export function StaffTabs() {
             [
               ["places", "Places", LayoutList],
               ["requests", "Co-op requests", Inbox],
+              ["news", "News & docs", Newspaper],
             ] as const
           ).map(([k, label, Icon]) => (
             <button
@@ -50,7 +53,7 @@ export function StaffTabs() {
           ))}
         </div>
       </div>
-      {tab === "places" ? <AdminPanel /> : <CoopRequests />}
+      {tab === "places" ? <AdminPanel /> : tab === "requests" ? <CoopRequests /> : <StaffResources />}
     </>
   );
 }
