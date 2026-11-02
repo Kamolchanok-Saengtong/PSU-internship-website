@@ -1,26 +1,525 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * PSU Phuket Internship Board: a calm university information system.
+ * Pale blue-grey ground, white surfaces, PSU navy for text and actions,
+ * emblem gold only where a deadline needs attention.
+ */
+@theme {
+  --color-navy-950: #0f1b38;
+  --color-navy-900: #16264d;
+  --color-navy: #203669; /* PSU emblem navy */
+  --color-navy-700: #2d4a8a;
+  --color-navy-600: #3b5aa0;
+  --color-navy-200: #c3cce0;
+  --color-navy-100: #e1e8f4;
+  --color-navy-50: #eef3fa;
+
+  --color-gold: #edcd00; /* PSU emblem gold */
+  --color-gold-soft: #fbf3bf;
+  --color-gold-ink: #5c4d00;
+
+  --color-ground: #f4f7fb;
+  --color-hero: #e3ecf8;
+  --color-ink: #1f2b45;
+  --color-body: #3a4762;
+  --color-muted: #5b6782;
+  --color-rule: #dbe3ee;
+  --color-closed: #7a8296;
+  --color-danger: #b42318;
+  --color-success: #127a52;
+
+  --font-sans: var(--font-noto), var(--font-noto-thai), ui-sans-serif, system-ui, sans-serif;
+  /* Kept so existing font-board utilities render in the same family. */
+  --font-board: var(--font-noto), var(--font-noto-thai), ui-sans-serif, system-ui, sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scrollbar-color: var(--color-navy-200) var(--color-ground);
+  scroll-padding-top: 6rem;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-ground);
+  color: var(--color-body);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-navy-950);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-navy-600);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+input,
+select,
+textarea {
+  caret-color: var(--color-navy);
+  accent-color: var(--color-navy);
+}
+
+a {
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@layer components {
+/* Shared surfaces */
+.panel {
+  border: 1px solid var(--color-rule);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(15 27 56 / 0.04);
+}
+
+.panel-raised {
+  border: 1px solid var(--color-rule);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 18px 40px -24px rgb(15 27 56 / 0.35);
+}
+
+.field {
+  height: 2.9rem;
+  width: 100%;
+  border: 1px solid var(--color-rule);
+  border-radius: 10px;
+  background: #fbfcfe;
+  padding-inline: 0.85rem;
+  color: var(--color-ink);
+  font-size: 0.97rem;
+  transition:
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.field:hover {
+  border-color: var(--color-navy-200);
+}
+
+.field:focus {
+  outline: none;
+  border-color: var(--color-navy-600);
+  box-shadow: 0 0 0 3px rgb(59 90 160 / 0.15);
+}
+
+.field::placeholder {
+  color: #8a94aa;
+}
+
+.hero-card {
+    display: block;
+    border: 1px solid rgb(219 227 238 / 0.9);
+    border-radius: 16px;
+    background: rgb(255 255 255 / 0.92);
+    box-shadow:
+      0 1px 0 rgb(255 255 255) inset,
+      0 22px 40px -22px rgb(15 27 56 / 0.45);
+    backdrop-filter: blur(8px);
+  }
+
+  .type-card {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    border: 1px solid var(--color-rule);
+    border-radius: 18px;
+    background: #fff;
+    padding: 1.4rem;
+    transition:
+      transform 350ms var(--ease-out-expo),
+      border-color 200ms,
+      box-shadow 350ms var(--ease-out-expo);
+  }
+
+  .type-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-navy-200);
+    box-shadow: 0 22px 40px -26px rgb(15 27 56 / 0.5);
+  }
+
+  .btn-primary {
+  display: inline-flex;
+  height: 2.9rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 10px;
+  background: var(--color-navy);
+  padding-inline: 1.4rem;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 8px 18px -10px rgb(32 54 105 / 0.7);
+  transition:
+    background-color 150ms,
+    transform 150ms;
+}
+
+.btn-primary:hover {
+  background: var(--color-navy-700);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  height: 2.9rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid var(--color-navy-200);
+  border-radius: 10px;
+  background: #fff;
+  padding-inline: 1.25rem;
+  color: var(--color-navy);
+  font-weight: 600;
+  transition:
+    background-color 150ms,
+    border-color 150ms;
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-navy-600);
+  background: var(--color-navy-50);
+}
+}
+
+/* Hero band, like the SIS welcome area */
+.hero-band {
+  background:
+    radial-gradient(60% 80% at 85% 10%, rgb(255 255 255 / 0.75), transparent 70%),
+    linear-gradient(180deg, var(--color-hero) 0%, #edf3fb 70%, var(--color-ground) 100%);
+}
+
+/* Pulsing dot on "Final call" badges */
+.pulse-dot {
+  position: relative;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--color-navy-950);
+}
+
+.pulse-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--color-navy-950);
+  animation: pulse-ring 1.8s var(--ease-out-expo) infinite;
+}
+
+@keyframes pulse-ring {
+  to {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+/* Gentle entrance for page content */
+.rise {
+  animation: rise 600ms var(--ease-out-expo) both;
+  animation-delay: var(--delay, 0ms);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+/* ---------- Map pins and popups (Leaflet) ---------- */
+.map-pin {
+  display: grid;
+  place-items: center;
+  border: 3px solid #fff;
+  border-radius: 999px;
+  background: var(--color-navy);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 6px 16px -6px rgb(15 27 56 / 0.6);
+  transition: transform 150ms;
+}
+
+.map-pin:hover {
+  transform: scale(1.08);
+}
+
+.map-pin-empty {
+  background: #8a94aa;
+}
+
+.map-campus {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--color-gold);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 6px 16px -6px rgb(15 27 56 / 0.6);
+}
+
+.map-campus img {
+  height: 28px;
+  width: auto;
+}
+
+.leaflet-tooltip.map-label {
+  border: 0;
+  border-radius: 6px;
+  background: rgb(255 255 255 / 0.92);
+  padding: 1px 6px;
+  color: var(--color-navy);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgb(15 27 56 / 0.15);
+}
+
+.leaflet-tooltip.map-label::before {
+  display: none;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  font-family: var(--font-sans);
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px;
+  line-height: 1.4;
+}
+
+.map-pop-title {
+  margin: 0 0 6px !important;
+  color: var(--color-navy);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.map-pop-sub {
+  margin: 0 !important;
+  color: var(--color-muted);
+}
+
+.map-pop-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.map-pop-list li {
+  padding: 6px 0;
+  border-top: 1px solid var(--color-rule);
+}
+
+.map-pop-list a {
+  color: var(--color-navy);
+  font-weight: 600;
+}
+
+.map-pop-list span {
+  display: block;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+}
+
+.map-pop-all {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--color-navy-600) !important;
+  font-weight: 600;
+}
+
+/* Gold brush stroke under the headline's last line, drawn in once */
+.hero-underline {
+  background-image: linear-gradient(transparent 62%, rgb(237 205 0 / 0.55) 62%, rgb(237 205 0 / 0.55) 90%, transparent 90%);
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  animation: underline-in 900ms var(--ease-out-expo) 700ms forwards;
+}
+
+@keyframes underline-in {
+  to {
+    background-size: 100% 100%;
+  }
+}
+
+/* Gentle float for the hero pieces */
+.hero-bob {
+  animation: hero-bob var(--bob-dur, 5s) cubic-bezier(0.45, 0, 0.55, 1) var(--bob-delay, 0s) infinite;
+  will-change: transform;
+}
+
+@keyframes hero-bob {
+  50% {
+    transform: translate3d(0, var(--bob, -8px), 0);
+  }
+}
+
+/* Looping background motion runs on the compositor, so it never stutters while the page is busy. */
+.hero-breathe {
+  animation: hero-breathe 9s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  will-change: transform;
+}
+
+@keyframes hero-breathe {
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.hero-drift {
+  animation: hero-drift 12s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes hero-drift {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate3d(-18px, 14px, 0);
+    opacity: 1;
+  }
+}
+
+.hero-spin {
+  animation: hero-spin 70s linear infinite;
+}
+
+.hero-spin-back {
+  animation: hero-spin 50s linear infinite reverse;
+}
+
+@keyframes hero-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Placement-type tabs on the positions page */
+.type-tabs {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  border: 1px solid var(--color-rule);
+  border-radius: 14px;
+  background: #fff;
+  padding: 0.3rem;
+  scrollbar-width: none;
+}
+
+.type-tab {
+  display: inline-flex;
+  flex: 1 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 10px;
+  padding: 0.55rem 0.9rem;
+  color: var(--color-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    background-color 200ms,
+    color 200ms;
+}
+
+.type-tab:hover {
+  background: var(--color-navy-50);
+  color: var(--color-navy);
+}
+
+.type-tab[aria-pressed="true"] {
+  background: var(--color-navy);
+  color: #fff;
+}
+
+.type-tab-count {
+  border-radius: 999px;
+  background: var(--color-navy-50);
+  padding: 0 0.45rem;
+  color: var(--color-navy);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.type-tab[aria-pressed="true"] .type-tab-count {
+  background: rgb(255 255 255 / 0.18);
+  color: #fff;
+}
+
+/* Dropdowns: our own chevron with breathing room from the right edge.
+   Unlayered on purpose, so it wins over px-* utilities on the same element. */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 2.75rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23203669' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1rem;
+  cursor: pointer;
+}
+
+/* Map-flight stops: grey until the route reaches them */
+.flight-stop {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 3px solid #fff;
+  border-radius: 999px;
+  background: #9aa4b8;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  box-shadow: 0 6px 14px -6px rgb(15 27 56 / 0.6);
+  transform: scale(0.8);
+  transition:
+    background-color 300ms,
+    transform 450ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.flight-stop.is-reached {
+  background: var(--color-navy);
+  transform: scale(1);
+}
+
+.flight-stop.is-current {
+  background: var(--color-gold);
+  color: var(--color-navy-950);
+  transform: scale(1.3);
 }
