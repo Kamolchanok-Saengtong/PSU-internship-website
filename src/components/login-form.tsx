@@ -6,12 +6,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { ArrowLeft, Eye, EyeOff, Info, Loader2, Lock } from "lucide-react";
 import { signIn, signInWithPassport, useSession, type Role } from "@/lib/auth";
+import { usePlaces } from "@/lib/store";
+import { HeroCopy, HeroLine, HeroScene } from "./hero-scene";
 
 const COPY = {
   staff: {
     title: "Staff sign-in",
     intro: "Manage the internship, co-op and part-time places that PSU Phuket Campus students see on the board.",
-    points: ["Add and update places", "Check what is closing soon", "Export the list to a spreadsheet"],
     who: "For PSU Phuket Campus staff only.",
     idLabel: "Username",
     idHint: "e.g. somchai.s",
@@ -23,7 +24,6 @@ const COPY = {
   student: {
     title: "Student sign-in",
     intro: "Sign in with your PSU account to keep track of the places you are interested in.",
-    points: ["Save places to look at later", "Track the documents you have ready", "See it all on your own page"],
     who: "For PSU Phuket Campus students.",
     idLabel: "Student ID",
     idHint: "e.g. 6510110123",
@@ -40,6 +40,7 @@ export function LoginForm({ role = "staff" }: { role?: Role }) {
   const params = useSearchParams();
   const next = params.get("next")?.startsWith("/") ? params.get("next")! : c.home;
   const session = useSession(role);
+  const places = usePlaces();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -78,23 +79,19 @@ export function LoginForm({ role = "staff" }: { role?: Role }) {
 
   return (
     <div className="hero-band min-h-[calc(100dvh-4.5rem)]">
-      <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_28rem] lg:py-20">
-        <div className="hidden lg:block">
-          <Image src="/psu-emblem.svg" alt="" width={84} height={110} className="h-28 w-auto" priority />
-          <h1 className="mt-8 text-[clamp(2.2rem,4vw,3rem)] leading-tight font-bold tracking-[-0.02em] text-navy">
-            {c.title}
-          </h1>
-          <p className="mt-3 max-w-md text-lg leading-relaxed text-body">{c.intro}</p>
-          <ul className="mt-8 space-y-3 text-body">
-            {c.points.map((t) => (
-              <li key={t} className="flex items-center gap-3">
-                <span className="grid size-7 place-items-center rounded-full bg-navy-50 text-navy">
-                  <Lock className="size-3.5" aria-hidden />
-                </span>
-                {t}
-              </li>
-            ))}
-          </ul>
+      <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_28rem] lg:gap-14 lg:py-14">
+        <div className="hidden min-w-0 lg:block">
+          <HeroCopy>
+            <HeroLine>
+              <h1 className="text-[clamp(2.2rem,4vw,3rem)] leading-tight font-bold tracking-[-0.02em] text-navy">{c.title}</h1>
+            </HeroLine>
+            <HeroLine>
+              <p className="mt-3 max-w-md text-lg leading-relaxed text-body">{c.intro}</p>
+            </HeroLine>
+          </HeroCopy>
+          <div className="mt-2 max-w-[30rem]">
+            <HeroScene places={places} />
+          </div>
         </div>
 
         <div className="panel-raised w-full p-6 sm:p-8">
