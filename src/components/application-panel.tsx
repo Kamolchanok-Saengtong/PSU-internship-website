@@ -298,7 +298,7 @@ export function ApplicationPanel({
           </div>
         </div>
 
-        <aside className="space-y-5">
+        <aside className="lg:sticky lg:top-24 lg:self-start">
           <Schedule periods={SCHEDULE} />
         </aside>
       </section>
@@ -406,22 +406,23 @@ export function Journey({ status }: { status: AppStatus | null }) {
   );
 }
 
-export function Schedule({ periods = SCHEDULE }: { periods?: Period[] }) {
+/** fill: stretch to the height of the column beside it, spreading the periods evenly. */
+export function Schedule({ periods = SCHEDULE, fill = false }: { periods?: Period[]; fill?: boolean }) {
   const today = todayIso();
   return (
-    <div className="panel p-5">
+    <div className={`panel p-5 ${fill ? "flex h-full flex-col" : ""}`}>
       <h3 className="flex items-center gap-2 font-semibold text-navy">
         <CalendarDays className="size-4" aria-hidden /> Schedule
       </h3>
       <p className="text-sm text-muted">Today is {day(today)}</p>
-      <ul className="mt-4 space-y-2.5">
+      <ul className={`mt-4 ${fill ? "flex flex-1 flex-col gap-2.5" : "space-y-2.5"}`}>
         {periods.map((p) => {
           const state =
             today < p.from ? "upcoming" : today > p.to ? "ended" : "open";
           return (
             <li
               key={p.label}
-              className={`rounded-xl border px-4 py-3 ${
+              className={`rounded-xl border px-4 py-3 ${fill ? "flex flex-1 flex-col justify-center" : ""} ${
                 state === "open"
                   ? "border-gold bg-gold-soft/50"
                   : state === "ended"

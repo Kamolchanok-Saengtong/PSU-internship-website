@@ -199,8 +199,8 @@ export function MyPlaces() {
                 <Journey status={null} />
               </section>
             </div>
-            <aside className="space-y-5">
-              <Schedule />
+            <aside>
+              <Schedule fill />
             </aside>
           </div>
         )}
