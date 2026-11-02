@@ -3,14 +3,28 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Bookmark, FileCheck2, Loader2, LogOut } from "lucide-react";
+import {
+  ArrowRight,
+  Bookmark,
+  CircleCheck,
+  FileCheck2,
+  GraduationCap,
+  Loader2,
+  LogOut,
+  X,
+} from "lucide-react";
 import { signOut, useSession } from "@/lib/auth";
 import { readDocProgress, useSaved } from "@/lib/saved";
 import { statusOf } from "@/lib/status";
 import { usePlaces } from "@/lib/store";
 import { PositionRow } from "./position-row";
-import { ApplicationPanel } from "./application-panel";
-import { sampleApplication, usePreviewStatus } from "@/lib/application";
+import {
+  ApplicationPanel,
+  Journey,
+  Schedule,
+  StatusGuide,
+} from "./application-panel";
+import { useMyApplication } from "@/lib/application";
 
 /** A signed-in student's page: their co-op application status, and saved places. */
 export function MyPlaces() {
@@ -18,13 +32,23 @@ export function MyPlaces() {
   const router = useRouter();
   const places = usePlaces();
   const saved = useSaved(session?.id);
-  const previewStatus = usePreviewStatus();
+  const app = useMyApplication(session?.id);
+  const [justSent, setJustSent] = useState(false);
+
+  // Arrived from the request form: show a confirmation, then tidy the URL.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("sent")) {
+      setJustSent(true);
+      window.history.replaceState(null, "", "/me");
+    }
+  }, []);
   const [progress, setProgress] = useState<Record<string, number>>({});
   const leaving = useRef(false);
 
   // Signed out (not by pressing Sign out here): ask them to sign in.
   useEffect(() => {
-    if (session === null && !leaving.current) router.replace("/signin?next=/me");
+    if (session === null && !leaving.current)
+      router.replace("/signin?next=/me");
   }, [session, router]);
 
   // Document ticks live in the browser; read them once places are known.
@@ -39,16 +63,22 @@ export function MyPlaces() {
     return (
       <div className="grid min-h-[60vh] place-items-center text-muted">
         <span className="inline-flex items-center gap-2">
-          <Loader2 className="size-5 animate-spin" aria-hidden /> Loading your page…
+          <Loader2 className="size-5 animate-spin" aria-hidden /> Loading your
+          page…
         </span>
       </div>
     );
   }
 
-  const list = saved.map((id) => places.find((p) => p.id === id)).filter((p) => p !== undefined);
+  const list = saved
+    .map((id) => places.find((p) => p.id === id))
+    .filter((p) => p !== undefined);
   const open = list.filter((p) => statusOf(p) !== "closed");
-  const app = sampleApplication(previewStatus);
-  const docsReady = list.filter((p) => (p.documents ?? []).length > 0 && (progress[p.id] ?? 0) >= p.documents.length).length;
+  const docsReady = list.filter(
+    (p) =>
+      (p.documents ?? []).length > 0 &&
+      (progress[p.id] ?? 0) >= p.documents.length,
+  ).length;
 
   return (
     <>
@@ -60,21 +90,26 @@ export function MyPlaces() {
             </span>
             <div>
               <h1 className="text-[clamp(1.8rem,4vw,2.4rem)] leading-tight font-bold tracking-[-0.02em] text-navy">
-                {session.name !== session.id ? session.name : "My page"}
+                {app?.name ||
+                  (session.name !== session.id ? session.name : "My page")}
               </h1>
               <dl className="mt-1 flex flex-wrap gap-x-5 gap-y-1 text-sm">
                 <div className="flex gap-1.5">
                   <dt className="text-muted">ID</dt>
                   <dd className="tabular font-medium text-ink">{session.id}</dd>
                 </div>
-                <div className="flex gap-1.5">
-                  <dt className="text-muted">Faculty</dt>
-                  <dd className="font-medium text-ink">{app.faculty}</dd>
-                </div>
-                <div className="flex gap-1.5">
-                  <dt className="text-muted">Major</dt>
-                  <dd className="font-medium text-ink">{app.major}</dd>
-                </div>
+                {app && (
+                  <>
+                    <div className="flex gap-1.5">
+                      <dt className="text-muted">Faculty</dt>
+                      <dd className="font-medium text-ink">{app.faculty}</dd>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <dt className="text-muted">Major</dt>
+                      <dd className="font-medium text-ink">{app.major}</dd>
+                    </div>
+                  </>
+                )}
               </dl>
             </div>
           </div>
@@ -93,21 +128,100 @@ export function MyPlaces() {
       </section>
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <ApplicationPanel app={app} place={places.find((p) => p.id === app.placeId)} />
+        {justSent && app && (
+          <div
+            role="status"
+            className="mb-5 flex items-start gap-3 rounded-xl border border-success/40 bg-[#f1faf5] px-4 py-3"
+          >
+            <CircleCheck
+              className="mt-0.5 size-5 shrink-0 text-success"
+              aria-hidden
+            />
+            <p className="flex-1 text-[0.95rem] text-ink">
+              <strong>Request sent.</strong> Your advisor will review it. You
+              can follow every step here.
+            </p>
+            <button
+              type="button"
+              onClick={() => setJustSent(false)}
+              className="grid size-7 place-items-center rounded-md text-muted hover:bg-white"
+            >
+              <X className="size-4" aria-hidden />
+              <span className="sr-only">Dismiss</span>
+            </button>
+          </div>
+        )}
+        {app ? (
+          <ApplicationPanel
+            app={app}
+            place={places.find((p) => p.id === app.placeId)}
+          />
+        ) : (
+          <div className="grid gap-5 lg:grid-cols-[1fr_20rem]">
+            <div className="min-w-0 space-y-5">
+              <section className="panel flex flex-col items-start gap-5 p-6 sm:flex-row sm:items-center sm:p-8">
+                <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-navy text-white">
+                  <GraduationCap className="size-7" aria-hidden />
+                </span>
+                <div className="flex-1">
+                  <h2 className="text-xl font-bold text-navy">
+                    No co-op request yet
+                  </h2>
+                  <p className="mt-1 text-body">
+                    Choose a co-op place, then press{" "}
+                    <strong>Apply for co-op</strong> on its page. You will fill
+                    in your details, attach your documents and send it to your
+                    advisor.
+                  </p>
+                </div>
+                <Link
+                  href="/positions?type=co-op"
+                  className="btn-primary h-11 shrink-0 text-sm"
+                >
+                  Browse co-op places{" "}
+                  <ArrowRight className="size-4" aria-hidden />
+                </Link>
+              </section>
+              <section className="panel p-5 sm:p-6">
+                <h2 className="font-semibold text-navy">
+                  How a co-op request works
+                </h2>
+                <p className="mt-1 mb-6 text-sm text-muted">
+                  After you send a request, you can follow each step here. If
+                  your advisor declines (Rechoosing) or the company declines
+                  (Repair), you choose a new place and send it again.
+                </p>
+                <Journey status={null} />
+              </section>
+            </div>
+            <aside className="space-y-5">
+              <Schedule />
+            </aside>
+          </div>
+        )}
+        {!app && <StatusGuide />}
 
-        <h2 className="mt-14 mb-4 text-2xl font-bold text-navy">Saved places</h2>
+        <h2 className="mt-14 mb-4 text-2xl font-bold text-navy">
+          Saved places
+        </h2>
         <ul className="grid gap-3 sm:grid-cols-3">
           {[
             { icon: Bookmark, value: list.length, label: "Saved places" },
             { icon: ArrowRight, value: open.length, label: "Still open" },
-            { icon: FileCheck2, value: docsReady, label: "All documents ready" },
+            {
+              icon: FileCheck2,
+              value: docsReady,
+              label: "All documents ready",
+            },
           ].map(({ icon: Icon, value, label }) => (
             <li key={label} className="panel flex items-center gap-4 p-4">
               <span className="grid size-11 place-items-center rounded-xl bg-navy-50 text-navy">
                 <Icon className="size-5" aria-hidden />
               </span>
               <span>
-                <span className="tabular block text-2xl leading-none font-bold text-navy">{value}</span>
+                <span className="tabular block text-2xl leading-none font-bold text-navy">
+                  {value}
+                </span>
                 <span className="mt-1 block text-sm text-muted">{label}</span>
               </span>
             </li>
@@ -121,8 +235,12 @@ export function MyPlaces() {
           {list.length === 0 ? (
             <div className="panel mt-4 px-6 py-14 text-center">
               <Bookmark className="mx-auto size-8 text-navy-200" aria-hidden />
-              <p className="mt-3 text-lg font-semibold text-navy">No saved places yet</p>
-              <p className="mt-1 text-muted">Tap the bookmark on any place to keep it here.</p>
+              <p className="mt-3 text-lg font-semibold text-navy">
+                No saved places yet
+              </p>
+              <p className="mt-1 text-muted">
+                Tap the bookmark on any place to keep it here.
+              </p>
               <Link href="/positions" className="btn-primary mt-5 text-sm">
                 Browse positions <ArrowRight className="size-4" aria-hidden />
               </Link>
@@ -142,12 +260,29 @@ export function MyPlaces() {
                         href={`/places/${p.id}`}
                         className="mx-4 -mt-1 flex items-center gap-3 rounded-b-xl border border-t-0 border-rule bg-white px-4 py-2.5 text-sm hover:bg-navy-50"
                       >
-                        <FileCheck2 className={`size-4 ${done === total ? "text-success" : "text-muted"}`} aria-hidden />
-                        <span className={done === total ? "font-semibold text-success" : "text-body"}>
-                          {done === total ? "All documents ready" : `${done} of ${total} documents ready`}
+                        <FileCheck2
+                          className={`size-4 ${done === total ? "text-success" : "text-muted"}`}
+                          aria-hidden
+                        />
+                        <span
+                          className={
+                            done === total
+                              ? "font-semibold text-success"
+                              : "text-body"
+                          }
+                        >
+                          {done === total
+                            ? "All documents ready"
+                            : `${done} of ${total} documents ready`}
                         </span>
-                        <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-navy-100" aria-hidden>
-                          <span className="block h-full rounded-full bg-success" style={{ width: `${(done / total) * 100}%` }} />
+                        <span
+                          className="h-1.5 flex-1 overflow-hidden rounded-full bg-navy-100"
+                          aria-hidden
+                        >
+                          <span
+                            className="block h-full rounded-full bg-success"
+                            style={{ width: `${(done / total) * 100}%` }}
+                          />
                         </span>
                       </Link>
                     )}
@@ -159,8 +294,9 @@ export function MyPlaces() {
         </section>
 
         <p className="mt-8 text-sm text-muted">
-          Draft: the application above is sample data, and saved places are kept in this browser. Both will come from
-          your PSU account when sign-in and the co-op system are connected.
+          Draft: your request and saved places are kept in this browser. They
+          will come from your PSU account when sign-in and the co-op system are
+          connected.
         </p>
       </div>
     </>

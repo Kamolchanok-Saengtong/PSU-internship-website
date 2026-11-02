@@ -12,6 +12,7 @@ import { TYPE_INFO, durationText, placeLocation } from "@/lib/placement";
 import { StatusBadge } from "./status-badge";
 import { BenefitsList, DocumentsChecklist } from "./place-extras";
 import { SaveButton } from "./save-button";
+import { ApplyButton } from "./apply-button";
 
 export function PlaceDetail({ id }: { id: string }) {
   const places = usePlaces();
@@ -193,13 +194,23 @@ export function PlaceDetail({ id }: { id: string }) {
               <p className="font-semibold text-ink">{place.contactName}</p>
               <p className="break-all text-navy-600">{place.contactEmail}</p>
             </div>
+            {place.placementType === "Co-op" && (
+              <div className="mt-5">
+                <ApplyButton placeId={place.id} closed={closed} />
+                {!closed && (
+                  <p className="mt-2 text-xs text-muted">Co-op requests go to your advisor first, then the co-op office.</p>
+                )}
+              </div>
+            )}
             {!closed && (
               <>
                 <a
-                  href={`mailto:${place.contactEmail}?subject=${encodeURIComponent(`Internship application: ${place.role} (PSU Phuket)`)}`}
-                  className="btn-primary mt-5 w-full"
+                  href={`mailto:${place.contactEmail}?subject=${encodeURIComponent(
+                    `${place.placementType === "Co-op" ? "Question" : "Application"}: ${place.role} (PSU Phuket)`,
+                  )}`}
+                  className={`mt-3 w-full ${place.placementType === "Co-op" ? "btn-secondary h-10 text-sm" : "btn-primary mt-5"}`}
                 >
-                  <Mail className="size-5" aria-hidden /> Email to apply
+                  <Mail className="size-5" aria-hidden /> {place.placementType === "Co-op" ? "Email a question" : "Email to apply"}
                 </a>
 
                 <p className="mt-5 text-sm font-semibold text-navy">Set a reminder</p>
