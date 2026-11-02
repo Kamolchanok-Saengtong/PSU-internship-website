@@ -89,9 +89,12 @@ export function useStepSnap({
         if (now < glideEnd.current || !fresh) return true;
         locked.current = false;
       }
-      // Arriving from outside: land on the edge step first, never skip into the middle.
+      // Not in the steps right now (e.g. just left them past the last step):
+      // only snap to step 1 when actually arriving at the top of the section.
+      // Anywhere else, let the scroll through so the visitor can carry on down.
       if (!inside.current) {
-        goTo(dir > 0 ? 0 : steps - 1);
+        if (window.scrollY > stepYRef.current(0) + 4) return false;
+        goTo(0);
         return true;
       }
       const from = nearestStep(window.scrollY);
