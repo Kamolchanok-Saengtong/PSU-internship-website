@@ -591,3 +591,135 @@ select {
     transform: scale(0.96) translateY(-4px);
   }
 }
+
+/* ---------- Map explorer ---------- */
+.pay-pin {
+  --pin: var(--color-navy);
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 0.6rem;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--pin);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+  box-shadow:
+    0 0 0 1.5px var(--pin),
+    0 6px 14px -6px rgb(15 27 56 / 0.55);
+  cursor: pointer;
+  transition:
+    transform 180ms var(--ease-out-expo),
+    background-color 150ms,
+    color 150ms;
+}
+
+.pay-pin.pin-part {
+  --pin: #1d5fa8;
+}
+.pay-pin.pin-short {
+  --pin: #5b3aa4;
+}
+.pay-pin.pin-coop {
+  --pin: var(--color-navy);
+}
+.pay-pin.pin-closed {
+  --pin: #8a94aa;
+  opacity: 0.8;
+}
+
+.pay-pin.is-hover,
+.pay-pin.is-active {
+  background: var(--pin);
+  color: #fff;
+  transform: translate(-50%, -50%) scale(1.12);
+}
+
+.pay-pin.is-active {
+  box-shadow:
+    0 0 0 1.5px var(--pin),
+    0 0 0 6px color-mix(in srgb, var(--pin) 22%, transparent),
+    0 10px 20px -8px rgb(15 27 56 / 0.6);
+}
+
+.cluster-pin {
+  display: grid;
+  place-items: center;
+  border: 3px solid #fff;
+  border-radius: 999px;
+  background: var(--color-navy);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow:
+    0 0 0 5px rgb(32 54 105 / 0.18),
+    0 8px 18px -8px rgb(15 27 56 / 0.6);
+  cursor: pointer;
+  transition: transform 180ms var(--ease-out-expo);
+}
+
+.cluster-pin:hover,
+.cluster-pin.is-hover,
+.cluster-pin.is-active {
+  transform: scale(1.12);
+  background: var(--color-navy-700);
+}
+
+.legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.95);
+  padding: 0.3rem 0.65rem;
+  color: var(--color-ink);
+  box-shadow: 0 2px 8px rgb(15 27 56 / 0.15);
+}
+
+.pin-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 999px;
+  background: var(--color-navy);
+}
+.pin-dot.pin-part {
+  background: #1d5fa8;
+}
+.pin-dot.pin-short {
+  background: #5b3aa4;
+}
+
+.jump-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2.25rem;
+  border: 1px solid var(--color-rule);
+  border-radius: 999px;
+  background: #fff;
+  padding-inline: 0.85rem;
+  color: var(--color-ink);
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    border-color 150ms,
+    background-color 150ms;
+}
+
+.jump-btn:hover {
+  border-color: var(--color-navy-200);
+  background: var(--color-navy-50);
+}
+
+.map-card {
+  animation: toast-in 300ms var(--ease-out-expo) both;
+}
